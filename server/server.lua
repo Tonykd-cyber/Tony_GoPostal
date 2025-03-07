@@ -38,7 +38,12 @@ local stash = {
     weight = 5000,
     owner = true
 }
- 
+
+RegisterServerEvent('Tony:ClearInventory')
+AddEventHandler('Tony:ClearInventory', function()
+	ox_inventory:ClearInventory('GoPostal', true)
+end)
+
 AddEventHandler('onServerResourceStart', function(resourceName)
     if resourceName == 'ox_inventory' or resourceName == GetCurrentResourceName() then
        ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner)
