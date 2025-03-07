@@ -252,89 +252,32 @@ function DeleteVehicle()
 end
 
 function Spawnlocker()
-    -- 模型加载系统
-    local modelHash = `bzzz_prop_shop_locker`
-    
-    -- 异步模型加载（带超时机制）
-    if not HasModelLoaded(modelHash) then
-        RequestModel(modelHash)
-        local loadTimeout = GetGameTimer() + 5000  -- 5秒超时
-        while not HasModelLoaded(modelHash) do
-            if GetGameTimer() > loadTimeout then
-                print("^1[ERROR] 模型加载超时: "..modelHash)
-             end
-            Citizen.Wait(10)
-        end
-    end
-
-    -- 坐标选择系统
-    local selectedPos = Config.gopostalobje[math.random(#Config.gopostalobje)]
-    local groundZ = selectedPos.z
-    local foundGround = false
-    
-    -- 增强型地面检测（多层检测）
-    for i = 1, Config.maxSpawnAttempts do
-        foundGround, preciseZ = GetGroundZFor_3dCoord(
-            selectedPos.x, 
-            selectedPos.y, 
-            selectedPos.z + Config.spawnHeightOffset * i,  -- 逐步提高检测高度
-            false
-        )
-        
-        if foundGround then
-            groundZ = preciseZ + 0.05  -- 防陷地偏移
-            break
-        end
-    end
-
-    if not foundGround then
-        print("^3[WARNING] 地面检测失败，使用原始 Z 坐标")
-        groundZ = selectedPos.z
-    end
-
-    -- 实体生成系统
-    local entity = CreateObject(
-        modelHash, 
-        selectedPos.x, 
-        selectedPos.y, 
-        groundZ, 
-        true,   -- isNetwork
-        true,   -- netMissionEntity
-        false   -- doorFlag
-    )
-
-    -- 实体后处理
-    if DoesEntityExist(entity) then
-        -- 异步设置属性（确保引擎就绪）
-        Citizen.Wait(0)
-        SetEntityHeading(entity, selectedPos.w)
-        FreezeEntityPosition(entity, true)
-        SetEntityAsMissionEntity(entity, true, true)
-        
-        -- 二次地面适配（保险措施）
-        PlaceObjectOnGroundProperly(entity)
-        
-        -- 获取最终坐标（调试用）
-        local finalCoords = GetEntityCoords(entity)
-        print(string.format("^2[SUCCESS] 实体 ID:%d 位置: %.4f,%.4f,%.4f", 
-            entity, finalCoords.x, finalCoords.y, finalCoords.z))
-            
-        -- 网络同步验证
-     else
-        print("error")
-   
-    end
-
-    -- 资源清理
-    SetModelAsNoLongerNeeded(modelHash)
-
-    Lockerblip = AddBlipForCoord(selectedPos.x, selectedPos.y, selectedPos.z)
-    SetBlipSprite(Lockerblip, 478)
-    SetBlipColour(Lockerblip, 26)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(locale('A9'))
-    EndTextCommandSetBlipName(Lockerblip)
-    SetBlipRoute(Lockerblip, true)
+	
+        local model = 'bzzz_prop_shop_locker'
+        -- 随机选择一个 vector4 坐标
+        local selectedPos = Config.gopostalobje[math.random(#Config.gopostalobje)]
+        -- 分解坐标和朝向
+        local spawnCoords = vector3(selectedPos.x, selectedPos.y, selectedPos.z)
+        local heading = selectedPos.w  -- 直接提取朝向
+        -- 生成逻辑  
+            ESX.Game.SpawnObject(model, spawnCoords, function(object)
+                -- 设置精确朝向
+                SetEntityHeading(object, heading)
+                -- 其他后处理
+                PlaceObjectOnGroundProperly(object)
+                FreezeEntityPosition(object, true)
+                SetEntityAsMissionEntity(object, true, true)
+                -- 打印验证
+                print("生成朝向:", GetEntityHeading(object))
+            end)
+        Lockerblip = AddBlipForCoord(selectedPos.x, selectedPos.y, selectedPos.z)
+        SetBlipSprite(Lockerblip, 478)
+        SetBlipColour(Lockerblip, 26)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString(locale('A9'))
+        EndTextCommandSetBlipName(Lockerblip)
+        SetBlipRoute(Lockerblip, true)
+        TriggerServerEvent('Tony:ClearInventory')
 
 end
 
