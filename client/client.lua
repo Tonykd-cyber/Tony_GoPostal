@@ -122,7 +122,6 @@ ox_target:addModel('bzzz_prop_shop_locker', {
 
 RegisterNetEvent('Tony:lockeropen')
 AddEventHandler('Tony:lockeropen', function()
-    TriggerServerEvent('Tony:ClearInventory')
     exports.ox_inventory:openInventory('stash', {id='GoPostal', owner=false})
 end)   
 
