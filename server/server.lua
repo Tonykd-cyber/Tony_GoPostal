@@ -47,7 +47,6 @@ end)
 AddEventHandler('onServerResourceStart', function(resourceName)
     if resourceName == 'ox_inventory' or resourceName == GetCurrentResourceName() then
        ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner)
-	   ox_inventory:ClearInventory('GoPostal', true)
     end
 end)
  
