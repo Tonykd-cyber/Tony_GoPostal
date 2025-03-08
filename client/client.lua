@@ -248,7 +248,7 @@ function SpawnVehicle()
         spawnedVehicle = vehicle  -- 将生成的车辆保存到全局变量
         SetVehicleNumberPlateText(vehicle, vehicle)
         SetPedIntoVehicle(PlayerPedId(), vehicle, -1)
-        exports.mVehicle:ItemCarKeysClient('add', GetVehicleNumberPlateText(vehicle))
+        --exports.mVehicle:ItemCarKeysClient('add', GetVehicleNumberPlateText(vehicle))
     end)
 end
 
