@@ -61,8 +61,6 @@ AddEventHandler('Tony:pedspawn',function(coords,heading)
 
 end)
 
-
-
 ox_target:addBoxZone({
 
     coords = vec3(78.9427, 112.5193, 81.1681),
@@ -91,7 +89,6 @@ ox_target:addBoxZone({
     }
 })
 
-
 ox_target:addModel(Config.oxrmbox, {
     {
         name = 'lockeropen',   -- 唯一标识符
@@ -101,8 +98,6 @@ ox_target:addModel(Config.oxrmbox, {
         distance = 1.5
     }
 })
-
- 
 
 ox_target:addModel('bzzz_prop_shop_locker', {
 	{
@@ -122,23 +117,28 @@ ox_target:addModel('bzzz_prop_shop_locker', {
 
 RegisterNetEvent('Tony:lockeropen')
 AddEventHandler('Tony:lockeropen', function()
+    --TriggerServerEvent('Tony:ClearInventory')
+    if hasjob then
     exports.ox_inventory:openInventory('stash', {id='GoPostal', owner=false})
+    end
 end)   
 
 RegisterNetEvent('Tony:lockeropenck')
 AddEventHandler('Tony:lockeropenck', function()
-    if lib.progressCircle({
-        duration = 5000,
-        position = 'bottom',
-        useWhileDead = false,
-        canCancel = false,
-        disable = { car = true, move = true, combat = true },
-        anim = { dict = 'amb@code_human_wander_texting_fat@male@base', clip = 'static' },
-        prop = { model = 'prop_phone_ing', bone = 28422, pos = vec3(-0.02, -0.01, 0.0), rot = vec3(0.0, 0.0, 0.0) }
-    }) 
-    then 
-        TriggerServerEvent('Tony:slotss')
-    end
+    if hasjob then
+        if lib.progressCircle({
+            duration = 5000,
+            position = 'bottom',
+            useWhileDead = false,
+            canCancel = false,
+            disable = { car = true, move = true, combat = true },
+            anim = { dict = 'amb@code_human_wander_texting_fat@male@base', clip = 'static' },
+            prop = { model = 'prop_phone_ing', bone = 28422, pos = vec3(-0.02, -0.01, 0.0), rot = vec3(0.0, 0.0, 0.0) }
+        }) 
+        then 
+            TriggerServerEvent('Tony:slotss')
+        end
+    end    
 end)   
 
 
@@ -189,7 +189,6 @@ end)
 function SpawnLocalObject()
     -- 清空旧物体（可选）
     -- ClearExistingObjects()
-
     -- 生成随机数量
     local spawnCount = math.random(Config.spawnArea.minCount, Config.spawnArea.maxCount)
 
@@ -222,6 +221,20 @@ function SpawnLocalObject()
             SetEntityCoords(object, finalPos.x, finalPos.y, finalPos.z + math.random() * 0.2)
             PlaceObjectOnGroundProperly(object)
             
+            local blip = AddBlipForCoord(finalPos.x, finalPos.y, finalPos.z)
+            SetBlipSprite(blip, 478)
+            SetBlipColour(blip, 26)
+            SetBlipScale(blip, 0.8)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(locale('A9'))
+            EndTextCommandSetBlipName(blip)
+            SetBlipRoute(blip, true)
+
+            table.insert(Config.SpawnedBlips, {
+                entity = object,
+                blip = blip,
+                coords = finalCoords
+            })
 
         end)
           
@@ -235,7 +248,7 @@ function SpawnVehicle()
         spawnedVehicle = vehicle  -- 将生成的车辆保存到全局变量
         SetVehicleNumberPlateText(vehicle, vehicle)
         SetPedIntoVehicle(PlayerPedId(), vehicle, -1)
-        --exports.mVehicle:ItemCarKeysClient('add', GetVehicleNumberPlateText(vehicle))
+        exports.mVehicle:ItemCarKeysClient('add', GetVehicleNumberPlateText(vehicle))
     end)
 end
 
@@ -250,8 +263,10 @@ function DeleteVehicle()
     end
 end
 
+ 
+
 function Spawnlocker()
-	
+
         local model = 'bzzz_prop_shop_locker'
         -- 随机选择一个 vector4 坐标
         local selectedPos = Config.gopostalobje[math.random(#Config.gopostalobje)]
@@ -277,7 +292,6 @@ function Spawnlocker()
         EndTextCommandSetBlipName(Lockerblip)
         SetBlipRoute(Lockerblip, true)
         TriggerServerEvent('Tony:ClearInventory')
-
 end
 
 
@@ -362,7 +376,6 @@ AddEventHandler('Tony:Deletejobd', function()
         print("no")
     end
     RemoveBlip(Lockerblip)
-
     lib.notify({
         id = 'goobjer',
         title = locale('A6'),
@@ -381,6 +394,5 @@ AddEventHandler('Tony:Deletejobd', function()
     })
  
 end)    
- 
 
  
